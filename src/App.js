@@ -27,9 +27,9 @@ function AppContent(){
   const go = () => {
     navigate("/add");
   };
-  const handleLogout = async () => {
-    await dispatch(logout());
-    navigate('/login');
+  const handleLogout = () => {
+    dispatch(logout());
+    // navigate('/login');
   };
 
   return (

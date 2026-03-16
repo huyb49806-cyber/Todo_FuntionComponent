@@ -4,36 +4,28 @@ import { login } from '../redux/actions';
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
-  const [isLoading, setIsLoading] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const {error, isAuthenticated} = useSelector(state => state.auth);
+  const { error, isAuthenticated, isLoading } = useSelector(state => state.auth);
 
   useEffect(() => {
-    if (isAuthenticated){
+    if (isAuthenticated) {
       navigate('/');
     }
   }, [isAuthenticated, navigate]);
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if(!username || !password) {
-        alert("Vui lòng nhập đủ thông tin");
-        return;
+    if (!username || !password) {
+      alert("Vui lòng nhập đủ thông tin");
+      return;
     }
-    setIsLoading(true);
-    try{
-      await dispatch(login(username, password, navigate));
-    }catch{
-      setIsLoading(false);
-    }finally{
-      setIsLoading(false);
-    }
+    dispatch(login(username, password, navigate));
   };
 
-  const handleRegisterNav=()=>{
+  const handleRegisterNav = () => {
     navigate('/register');
   }
 
@@ -44,31 +36,31 @@ const LoginPage = () => {
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <div style={{ marginBottom: 10 }}>
           <label>Username: </label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={username}
-            onChange={(e) => setUsername(e.target.value)} 
-            disabled={isLoading}
-          />
-        </div>
-        
-        <div style={{ marginBottom: 10 }}>
-          <label>Password: </label>
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
+            onChange={(e) => setUsername(e.target.value)}
             disabled={isLoading}
           />
         </div>
 
-        <button type="submit" disabled={isLoading}>
+        <div style={{ marginBottom: 10 }}>
+          <label>Password: </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
+          />
+        </div>
+
+        <button type="submit" style={{ cursor: isLoading ? "not-allowed" : "pointer" }} disabled={isLoading}>
           {isLoading ? 'Đang kiểm tra...' : 'Login'}
         </button>
       </form>
-      <button 
-        onClick={handleRegisterNav} 
-        style={{cursor: 'pointer'}}
+      <button
+        onClick={handleRegisterNav}
+        style={{ cursor: 'pointer' }}
       >Đăng Kí</button>
     </div>
   );

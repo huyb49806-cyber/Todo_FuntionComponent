@@ -10,25 +10,21 @@ import UserManagement from '../components/Admin';
 
 export default function TodoListData() {
   const dispatch = useDispatch();
-  const [isLoading, setIsLoading] = useState(false);
-  const { items, pagination } = useSelector(state => state.todos);
+  const { items, pagination, isLoading } = useSelector(state => state.todos);
   const filter = useSelector(state => state.filter);
   const totalPages = pagination ? Math.ceil(pagination._totalRows / pagination._limit) : 0;
   const { user } = useSelector(state => state.auth);
 
-  const loadData = useCallback(async () => {
-    setIsLoading(true);
+  const loadData = useCallback(() => {
     try {
-      await dispatch(fetchData());
+      dispatch(fetchData());
     } catch (err) {
       alert("Lỗi tải dữ liệu");
-    } finally {
-      setIsLoading(false);
     }
-  }, [dispatch]);
+  }, []);
   useEffect(() => {
-    loadData();
-  }, [pagination?._page, filter, loadData]);//khi data lớn thì lọc, sort, phân trang phải do bên server đảm nhận
+    if (user) loadData();
+  }, [pagination?._page, filter, loadData, user]);//khi data lớn thì lọc, sort, phân trang phải do bên server đảm nhận
   const activeCount = items.filter(t => !t.completed).length;
   const completedCount = items.length - activeCount;
 
@@ -46,18 +42,18 @@ export default function TodoListData() {
           <p>Đang tải dữ liệu...</p>
         </div>
       ) : (
-        
-          <section className="main" style={{ borderTop: 'none' }}>
-            <ul className="todo-list">
-              {items.map(todo => (
-                <TodoItem
-                  key={todo.id}
-                  todo={todo}
-                  isEditingItem={false}
-                />
-              ))}
-            </ul>
-          </section>
+
+        <section className="main" style={{ borderTop: 'none' }}>
+          <ul className="todo-list">
+            {items.map(todo => (
+              <TodoItem
+                key={todo.id}
+                todo={todo}
+                isEditingItem={false}
+              />
+            ))}
+          </ul>
+        </section>
       )}
 
       <Pagination

@@ -4,7 +4,7 @@ const ITEM_HEIGHT = 60;
 const CONTAINER_HEIGHT = 400;
 const OVERSCAN = 3;        //dư ra 3 items
 
-export const useVirtualScroll = (dataLength, itemHeight = ITEM_HEIGHT, containerHeight = CONTAINER_HEIGHT) => {
+export const useVirtualScrolL = (dataLength, itemHeight = ITEM_HEIGHT, containerHeight = CONTAINER_HEIGHT) => {
     const containerRef = useRef(null);
     const [visibleRange, setVisibleRange] = useState({
         startIndex: 0,

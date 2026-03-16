@@ -6,6 +6,13 @@
       "password": "123",
       "name": "HuyAdmin",
       "role": "ADMIN"
+    },
+    {
+      "id": 1773647812970,
+      "email": "huy@gmail.com",
+      "password": "123",
+      "name": "huy",
+      "role": "USER"
     }
   ],
   "todos": [
@@ -34,25 +41,6 @@
       "userId": "1"
     },
     {
-      "id": "1768636619403",
-      "text": "double submissions",
-      "completed": true,
-      "userId": "1"
-    },
-    {
-      "id": "1768636620079",
-      "text": "double submissions",
-      "completed": true,
-      "userId": "1"
-    },
-    {
-      "id": "1769522100255",
-      "text": "hoc bai",
-      "completed": false,
-      "userId": "1",
-      "createdAt": "2026-01-27T13:55:00.279Z"
-    },
-    {
       "id": "1769523540022",
       "text": "123456",
       "completed": false,
@@ -60,18 +48,18 @@
       "createdAt": "2026-01-27T14:19:00.055Z"
     },
     {
-      "id": "1770093249710",
-      "text": "cong viec",
+      "id": "1773647363522",
+      "text": "123",
       "completed": false,
       "userId": "1",
-      "createdAt": "2026-02-03T04:34:09.737Z"
+      "createdAt": "2026-03-16T07:49:23.657Z"
     },
     {
-      "id": "1770093268757",
-      "text": "cong viec 2",
+      "id": "1773647380050",
+      "text": "1321312",
       "completed": false,
       "userId": "1",
-      "createdAt": "2026-02-03T04:34:28.779Z"
+      "createdAt": "2026-03-16T07:49:40.096Z"
     }
   ]
 }

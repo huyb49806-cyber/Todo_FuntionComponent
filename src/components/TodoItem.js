@@ -9,25 +9,17 @@ function TodoItem({ todo, isEditingItem }) {
 
   const handleToggle = () => {
     dispatch(toggleTodo(todo.id, todo.completed))
-    .then()
-    .catch((error)=>{
-      alert('lỗi xóa');
-    })
   };
 
-  const handleDelete=()=>{
+  const handleDelete = () => {
     dispatch(deleteTodo(todo.id))
-    .then()
-    .catch((error)=>{
-      alert('lỗi xóa do '+error.message);
-    })
   }
 
   const handleEdit = () => {
     dispatch(setEditingId(todo.id));
     navigate(`/edit/${todo.id}`);
   };
-  
+
   const liClassName = `
     ${todo.completed ? 'completed' : ''} 
     ${isEditingItem ? 'editing' : ''}
@@ -43,7 +35,7 @@ function TodoItem({ todo, isEditingItem }) {
           onChange={handleToggle}
         />
         <label onDoubleClick={handleEdit}>
-            {todo.text}
+          {todo.text}
         </label>
         <button
           className="destroy"

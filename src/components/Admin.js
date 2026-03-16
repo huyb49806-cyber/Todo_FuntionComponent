@@ -7,9 +7,8 @@ const UserManagement=()=>{
     const {user}=useSelector(state=>state.auth);
     // console.log(user);
     const {listUsers}=useSelector(state=>state.admin);
-    console.log(listUsers);
     useEffect(()=>{
-        if(user?.role==='ADMIN'){
+        if(user&&user?.role==='ADMIN'){
             dispatch(getallUsers());
         }
     },[user]);
