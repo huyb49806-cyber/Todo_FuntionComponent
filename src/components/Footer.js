@@ -2,7 +2,6 @@ import React, { memo } from 'react';
 // import Pagination from './Pagination';
 
 function TodoFooter({ 
-  activeCount, 
   completedCount, 
   filter, 
   onFilterChange, 
@@ -14,9 +13,6 @@ function TodoFooter({
   
   return (
     <footer className="footer">
-      <span className="todo-count">
-        <strong>{activeCount}</strong> {activeCount === 1 ? 'item' : 'items'} left
-      </span>
 
       <ul className="filters">
         <li>

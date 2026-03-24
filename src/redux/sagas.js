@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as types from './constants'
-import { call, all, fork, takeEvery, takeLatest, take, select, put } from 'redux-saga/effects'
+import { call, all, fork, takeEvery, takeLatest, take, select, put, cancel } from 'redux-saga/effects'
 
 axios.defaults.withCredentials = true;
 
@@ -11,7 +11,8 @@ const logout_api_url = 'http://localhost:8000/logout';
 const users_api_url = 'http://localhost:8000/users';
 const register_api_url = 'http://localhost:8000/register';
 
-function* workerFetchData() {
+function* workerFetchData(action) {
+    const {onSuccess,onError}=action.payload||{};
     try {
         const { pagination } = yield select(state => state.todos);
         const filter = yield select(state => state.filter);
@@ -42,9 +43,10 @@ function* workerFetchData() {
                 }
             }
         })
-        return response.data
+        if(onSuccess) onSuccess();
     } catch (error) {
         console.error('loi fetch; ', error.message);
+        if(onError) onError();
     }
 }
 //watch lắng nghe action và ném toàn bộ action vào worker
@@ -197,30 +199,55 @@ function* register(action) {
     }
 }
 
+function* myTakeEvery(pattern, worker){
+    while(true){
+        const action=yield take(pattern);
+        yield fork(worker,action);
+    }
+}
+
+function* myTakeLatest(pattern,worker){
+    let lastTask;
+    while(true){
+        const action=yield take(pattern);
+        if(lastTask){
+            yield cancel(lastTask);
+        }
+        lastTask=yield fork(worker,action);
+    }
+}
+
+function* myTakeLeading(pattern, worker){
+    while(true){
+        const action=yield take(pattern);
+        yield call(worker,action);
+    }
+}
+
 function* watcherFetchData() {
-    yield takeEvery(types.FETCH_TODOS_REQUEST, workerFetchData);
+    yield myTakeLatest(types.FETCH_TODOS_REQUEST, workerFetchData);
 }
 function* watcherTodo() {
-    yield takeEvery(types.ADD_TODOS_REQUEST, workerAddTodo);
-    yield takeEvery(types.DELETE_TODO_REQUEST, workerDeleteTodo);
-    yield takeEvery(types.TOGGLE_TODO_REQUEST, workerToggleTodo);
-    yield takeEvery(types.SAVE_EDITING_REQUEST, workerSaveEditing);
-    yield takeEvery(types.CLEAR_COMPLETED_REQUEST, workerClearCompleted)
+    yield myTakeLeading(types.ADD_TODOS_REQUEST, workerAddTodo);
+    yield myTakeEvery(types.DELETE_TODO_REQUEST, workerDeleteTodo);
+    yield myTakeEvery(types.TOGGLE_TODO_REQUEST, workerToggleTodo);
+    yield myTakeLatest(types.SAVE_EDITING_REQUEST, workerSaveEditing);
+    yield myTakeLeading(types.CLEAR_COMPLETED_REQUEST, workerClearCompleted)
 }
 
 function* watcherAuthen() {
-    yield takeLatest(types.LOGIN_REQUEST, workerLogin);
-    yield takeEvery(types.CHECK_AUTH_REQUEST, workerCheckAuth)
-    yield takeLatest(types.LOGOUT_REQUEST, workerLogout);
+    yield myTakeLeading(types.LOGIN_REQUEST, workerLogin);
+    yield myTakeLatest(types.CHECK_AUTH_REQUEST, workerCheckAuth)
+    yield myTakeLeading(types.LOGOUT_REQUEST, workerLogout);
 }
 
 function* watcherAuthor() {
-    yield takeEvery(types.GET_USER_REQUEST, getUser)
-    yield takeEvery(types.DELETE_USER_REQUEST, deleteUser)
+    yield myTakeLatest(types.GET_USER_REQUEST, getUser)
+    yield myTakeEvery(types.DELETE_USER_REQUEST, deleteUser)
 }
 
 function* watcherRegister() {
-    yield takeEvery(types.REGISTER_REQUEST,register);
+    yield myTakeLeading(types.REGISTER_REQUEST,register);
 }
 
 export default function* rootSaga() {

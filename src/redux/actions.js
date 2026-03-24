@@ -2,7 +2,7 @@ import * as types from './constants';
 import axios from 'axios';
 
 
-export const fetchData = () => ({ type: types.FETCH_TODOS_REQUEST });
+export const fetchData = (payload) =>{return { type: types.FETCH_TODOS_REQUEST,payload:payload  }};
 
 export const addTodo = (text) => ({
   type: types.ADD_TODOS_REQUEST,

@@ -8,16 +8,13 @@ const initialState = {
     _limit: 5,
     _totalRows: 0
   },
-  isLoading: false,
-  error: null
 };
 
 export default function todosReducer(state = initialState, action) {
   switch (action.type) {
     case types.FETCH_TODOS_REQUEST:
       return {
-        ...state,
-        isLoading: true
+        ...state
       }
     case types.FETCH_TODOS_SUCCESS:
       return {
@@ -26,8 +23,7 @@ export default function todosReducer(state = initialState, action) {
         pagination: {
           ...state.pagination,
           ...action.payload.pagination
-        },
-        isLoading: false
+        }
       }
 
     case types.SET_PAGE:
