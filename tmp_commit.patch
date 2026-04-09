@@ -1,0 +1,496 @@
+From 2c44a7bec9e61cd938e72eba67077a24211b5278 Mon Sep 17 00:00:00 2001
+From: Huy Bui <huyb49806@gmail.com>
+Date: Mon, 24 Nov 2025 19:31:41 +0700
+Subject: [PATCH] first commit
+
+---
+ src/App.css                | 163 +++++++++++++++++++++++++++++++------
+ src/App.js                 | 100 +++++++++++++++++++----
+ src/components/Footer.js   |  47 +++++++++++
+ src/components/Header.js   |  37 +++++++++
+ src/components/TodoItem.js |  24 ++++++
+ src/components/TodoList.js |  20 +++++
+ src/index.css              |  16 ++--
+ 7 files changed, 356 insertions(+), 51 deletions(-)
+ create mode 100644 src/components/Footer.js
+ create mode 100644 src/components/Header.js
+ create mode 100644 src/components/TodoItem.js
+ create mode 100644 src/components/TodoList.js
+
+diff --git a/src/App.css b/src/App.css
+index 74b5e05..192f0e8 100644
+--- a/src/App.css
++++ b/src/App.css
+@@ -1,38 +1,155 @@
+-.App {
++body {
++  background: #f5f5f5;
++  font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
++  line-height: 1.4em;
++  color: #4d4d4d;
++  min-width: 230px;
++  max-width: 550px;
++  margin: 0 auto;
++  -webkit-font-smoothing: antialiased;
++  -moz-osx-font-smoothing: grayscale;
++}
++
++.todoapp {
++  background: #fff;
++  margin: 130px 0 40px 0;
++  position: relative;
++  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2),
++              0 25px 50px 0 rgba(0,0,0,0.1);
++}
++
++h1 {
++  position: absolute;
++  top: -155px;
++  width: 100%;
++  font-size: 100px;
++  font-weight: 100;
+   text-align: center;
++  color: rgba(175, 47, 47, 0.15);
+ }
+ 
+-.App-logo {
+-  height: 40vmin;
+-  pointer-events: none;
++.new-todo {
++  padding: 16px 16px 16px 60px;
++  width: 100%;
++  font-size: 24px;
++  border: none;
++  outline: none;
++  background: rgba(0,0,0,0.003);
++  box-sizing: border-box;
++  border-bottom: 1px solid #ededed;
+ }
+ 
+-@media (prefers-reduced-motion: no-preference) {
+-  .App-logo {
+-    animation: App-logo-spin infinite 20s linear;
+-  }
++/* Cần thêm .main để bọc ul */
++.main {
++  position: relative;
++  z-index: 2;
++  border-top: 1px solid #e6e6e6;
+ }
+ 
+-.App-header {
+-  background-color: #282c34;
+-  min-height: 100vh;
++.todo-list {
++  margin: 0;
++  padding: 0;
++  list-style: none;
++}
++
++.todo-list li {
++  border-bottom: 1px solid #ededed;
++  font-size: 24px;
+   display: flex;
+-  flex-direction: column;
+   align-items: center;
+-  justify-content: center;
+-  font-size: calc(10px + 2vmin);
++}
++
++.todo-list li.completed label {
++  color: #d9d9d9;
++  text-decoration: line-through;
++}
++
++.toggle {
++  text-align: center;
++  width: 40px;
++  height: auto;
++}
++
++.destroy {
++  position: absolute;
++  right: 10px;
++  top: 0;
++  bottom: 0;
++  width: 40px;
++  height: 40px;
++  margin: auto 0;
++  font-size: 30px;
+   color: white;
++  border: none;
++  background: none;
++  cursor: pointer;
++  transition: color 0.2s ease;
++}
++
++.destroy::after {
++  content: '×';
++  font-weight: 300;
++  line-height: 1;
++}
++
++.destroy:hover::after {
++  color: #af5b5e;
++}
++
++
++.todo-list li {
++  position: relative;
++  font-size: 24px;
++  height: 60px;
++  border-bottom: 1px solid #ededed;
++  display: flex;
++  align-items: center;
++  padding: 10px 45px 10px 60px; /* chừa chỗ cho checkbox và x */
++  overflow: hidden;
++}
++
++.footer {
++  padding: 10px 15px;
++  color: #777;
++  height: 20px;
++  text-align: left;
++  border-top: 1px solid #e6e6e6;
++  display: flex;
++  justify-content: space-between;
++  align-items: center;
++}
++
++.filters {
++  margin: 0;
++  padding: 0;
++  list-style: none;
++  display: flex;
++  gap: 10px;
++}
++
++.filters button {
++  border: 1px solid transparent;
++  background: none;
++  cursor: pointer;
++  padding: 3px 7px;
++}
++
++.filters button:hover {
++  border-color: rgba(175, 47, 47, 0.1);
++}
++
++.filters .selected {
++  border-color: rgba(175, 47, 47, 0.2);
++  border-radius: 3px;
+ }
+ 
+-.App-link {
+-  color: #61dafb;
++.clear-completed {
++  border: none;
++  background: none;
++  cursor: pointer;
++  color: #777;
+ }
+ 
+-@keyframes App-logo-spin {
+-  from {
+-    transform: rotate(0deg);
+-  }
+-  to {
+-    transform: rotate(360deg);
+-  }
++.clear-completed:hover {
++  text-decoration: underline;
+ }
+diff --git a/src/App.js b/src/App.js
+index 3784575..6f6b615 100644
+--- a/src/App.js
++++ b/src/App.js
+@@ -1,25 +1,91 @@
+-import logo from './logo.svg';
++import React, { useState, useContext } from 'react';
++import { produce } from 'immer';
+ import './App.css';
++import TodoHeader from './components/Header';
++import TodoFooter from './components/Footer';
++import TodoList from './components/TodoList';
++
++const Filter = {
++  ALL: 'all',
++  ACTIVE: 'active',
++  COMPLETED: 'completed'
++};
+ 
+ function App() {
++  const [todos, setTodos] = useState([]);
++  const [filter, setFilter] = useState(Filter.ALL);
++
++  // Thêm công việc mới
++  const handleAddTodo = (text) => {
++    setTodos(
++      produce((draft) => {
++        draft.unshift({
++          id: Date.now(),
++          text: text,
++          completed: false
++        });
++      })
++    );
++  };
++
++  const handleToggleTodo = (index) => {
++    setTodos(
++      produce((draft) => {
++        // Truy cập trực tiếp qua index, không cần find()
++        if (draft[index]) {
++          draft[index].completed = !draft[index].completed;
++        }
++      })
++    );
++  };
++
++  // Xóa công việc
++  const handleDeleteTodo = (index) => {
++    setTodos(
++      produce((draft) => {
++        if (index !== undefined) {
++          draft.splice(index, 1);
++        }
++      })
++    );
++  };
++
++  // Xóa các mục đã hoàn thành
++  const handleClearCompleted = () => {
++    setTodos((prevTodos) => prevTodos.filter((t) => !t.completed));
++  };
++
++  // Lọc danh sách
++  const getFilteredTodos = () => {
++    const todosWithFilter = todos.map((todo, index) => ({ ...todo, originalIndex: index }));
++    if (filter === Filter.ACTIVE) return todosWithFilter.filter((t) => !t.completed);
++    if (filter === Filter.COMPLETED) return todosWithFilter.filter((t) => t.completed);
++    return todosWithFilter;
++  };
++
++  const filteredTodos = getFilteredTodos();
++
+   return (
+-    <div className="App">
+-      <header className="App-header">
+-        <img src={logo} className="App-logo" alt="logo" />
+-        <p>
+-          Edit <code>src/App.js</code> and save to reload.
+-        </p>
+-        <a
+-          className="App-link"
+-          href="https://reactjs.org"
+-          target="_blank"
+-          rel="noopener noreferrer"
+-        >
+-          Learn React
+-        </a>
+-      </header>
++    <div className="todoapp">
++      <TodoHeader onSave={handleAddTodo} />
++      {todos.length > 0 && (
++        <TodoList
++          todos={filteredTodos}
++          onToggle={handleToggleTodo}
++          onDelete={handleDeleteTodo}
++        />
++      )}
++
++      {todos.length > 0 && (
++        <TodoFooter
++          todos={todos}
++          filter={filter}
++          onFilterChange={setFilter}
++          onClearCompleted={handleClearCompleted}
++        />
++      )}
+     </div>
+   );
+ }
+ 
+-export default App;
++export default App;
+\ No newline at end of file
+diff --git a/src/components/Footer.js b/src/components/Footer.js
+new file mode 100644
+index 0000000..bd5474a
+--- /dev/null
++++ b/src/components/Footer.js
+@@ -0,0 +1,47 @@
++import React from 'react';
++
++function TodoFooter({ todos, filter, onFilterChange, onClearCompleted }) {
++  const activeCount = todos.filter((t) => !t.completed).length;
++  const hasCompleted = todos.some((t) => t.completed);
++
++  return (
++    <footer className="footer">
++      <span className="todo-count">
++        <strong>{activeCount}</strong> {activeCount === 1 ? 'item' : 'items'} left
++      </span>
++      <ul className="filters">
++        <li>
++          <button
++            className={filter === 'all' ? 'selected' : ''}
++            onClick={() => onFilterChange('all')}
++          >
++            All
++          </button>
++        </li>
++        <li>
++          <button
++            className={filter === 'active' ? 'selected' : ''}
++            onClick={() => onFilterChange('active')}
++          >
++            Active
++          </button>
++        </li>
++        <li>
++          <button
++            className={filter === 'completed' ? 'selected' : ''}
++            onClick={() => onFilterChange('completed')}
++          >
++            Completed
++          </button>
++        </li>
++      </ul>
++      {hasCompleted && (
++        <button className="clear-completed" onClick={onClearCompleted}>
++          Clear completed
++        </button>
++      )}
++    </footer>
++  );
++}
++
++export default TodoFooter;
+\ No newline at end of file
+diff --git a/src/components/Header.js b/src/components/Header.js
+new file mode 100644
+index 0000000..e2d0193
+--- /dev/null
++++ b/src/components/Header.js
+@@ -0,0 +1,37 @@
++import React, { useState, useRef } from 'react';
++
++function TodoHeader({ onSave }){
++  const [text, setText] = useState('');
++  const inputRef = useRef(null);
++
++  const handleChange = (e) => {
++    setText(e.target.value);
++  };
++
++  const handleSubmit = (e) => {
++    e.preventDefault();
++    const trimmedText = text.trim();
++    if (!trimmedText) return;
++    onSave(trimmedText);
++    setText('');
++    if(inputRef.current) inputRef.current.focus();
++  };
++
++  return (
++    <header className="header">
++      <h1>todos</h1>
++      <form onSubmit={handleSubmit}>
++        <input
++          ref={inputRef}
++          className="new-todo"
++          placeholder="Nhập công việc cần làm"
++          value={text}
++          onChange={handleChange}
++          autoFocus
++        />
++      </form>
++    </header>
++  );
++}
++
++export default TodoHeader;
+\ No newline at end of file
+diff --git a/src/components/TodoItem.js b/src/components/TodoItem.js
+new file mode 100644
+index 0000000..8b3167f
+--- /dev/null
++++ b/src/components/TodoItem.js
+@@ -0,0 +1,24 @@
++import React from 'react';
++
++function TodoItem({ todo,index, onToggle, onDelete }) {
++  const liClassName = todo.completed ? 'completed' : '';
++  return (
++    <li className={liClassName}>
++      <div className="view">
++        <input
++          className="toggle"
++          type="checkbox"
++          checked={todo.completed}
++          onChange={() => onToggle(index)}
++        />
++        <label>{todo.text}</label>
++        <button
++          className="destroy"
++          onClick={() => onDelete(index)}
++        ></button>
++      </div>
++    </li>
++  );
++}
++
++export default TodoItem;
+\ No newline at end of file
+diff --git a/src/components/TodoList.js b/src/components/TodoList.js
+new file mode 100644
+index 0000000..0bacc74
+--- /dev/null
++++ b/src/components/TodoList.js
+@@ -0,0 +1,20 @@
++import React from 'react';
++import TodoItem from './TodoItem';
++
++function TodoList({ todos, onToggle, onDelete }) {
++  return (
++    <ul className="todo-list">
++      {todos.map((todo) => (
++        <TodoItem
++          key={todo.id}
++          todo={todo}
++          index={todo.originalIndex}
++          onToggle={onToggle}
++          onDelete={onDelete}
++        />
++      ))}
++    </ul>
++  );
++}
++
++export default TodoList;
+\ No newline at end of file
+diff --git a/src/index.css b/src/index.css
+index ec2585e..9421c68 100644
+--- a/src/index.css
++++ b/src/index.css
+@@ -1,13 +1,7 @@
++* {
++  box-sizing: border-box;
++}
+ body {
+   margin: 0;
+-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+-    sans-serif;
+-  -webkit-font-smoothing: antialiased;
+-  -moz-osx-font-smoothing: grayscale;
+-}
+-
+-code {
+-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+-    monospace;
+-}
++  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
++}
+\ No newline at end of file

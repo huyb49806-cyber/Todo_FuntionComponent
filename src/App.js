@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useNavigate, Navigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { ThemeProvider, useTheme } from './context/Theme';
+import { useTheme } from './context/Theme';
 import { logout, checkAuth } from './redux/actions'
 
 import TodoListData from './pages/TodoListData';
@@ -23,7 +23,7 @@ function AppContent(){
   const { isAuthenticated } = useSelector(state => state.auth);
   useEffect(() => {
     dispatch(checkAuth());
-  }, [])
+  }, [dispatch])
   const go = () => {
     navigate("/add");
   };
@@ -58,10 +58,8 @@ function AppContent(){
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </ThemeProvider>
+    <Router>
+      <AppContent />
+    </Router>
   );
 }

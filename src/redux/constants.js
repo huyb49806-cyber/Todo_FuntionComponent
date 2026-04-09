@@ -5,6 +5,7 @@ export const FILTER_TYPES={
 };
 export const FETCH_TODOS_REQUEST = 'todo/fetchRequest';
 export const FETCH_TODOS_SUCCESS = 'todo/fetchSuccess';
+export const FETCH_TODOS_FAILURE = 'todo/fetchFailure';
 
 export const DELETE_TODO_REQUEST='todos/deleteTodoRequest';
 export const DELETE_TODO_SUCCESS='todos/deleteTodoSuccess';

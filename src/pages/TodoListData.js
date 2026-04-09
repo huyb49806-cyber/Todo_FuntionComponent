@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   fetchData, setPage, setFilter, clearCompleted
@@ -11,21 +11,13 @@ import UserManagement from '../components/Admin';
 
 export default function TodoListData() {
   const dispatch = useDispatch();
-  const { items, pagination} = useSelector(state => state.todos);
+  const { items, pagination, isLoading } = useSelector(state => state.todos);
   const filter = useSelector(state => state.filter);
   const totalPages = pagination ? Math.ceil(pagination._totalRows / pagination._limit) : 0;
   const { user } = useSelector(state => state.auth);
-  const [isLoading,setIsLoading]=useState(false);
-
   const loadData = useCallback(() => {
-      setIsLoading(true);
-      dispatch(fetchData({
-        onSuccess:()=>setIsLoading(false),
-        onError:()=>{
-          setIsLoading(false);
-        }
-      }))
-  }, []);
+    dispatch(fetchData());
+  }, [dispatch]);
 
 
   useEffect(() => {
@@ -36,9 +28,9 @@ export default function TodoListData() {
 
   const handlePageChange = useCallback((f) => {
     dispatch(setPage(f));
-  }, []);
-  const handleFilterChange = useCallback((f) => dispatch(setFilter(f)), []);
-  const handleClearCompleted = useCallback(() => dispatch(clearCompleted()), []);
+  }, [dispatch]);
+  const handleFilterChange = useCallback((f) => dispatch(setFilter(f)), [dispatch]);
+  const handleClearCompleted = useCallback(() => dispatch(clearCompleted()), [dispatch]);
   // console.log(user);
   return (
     <div>
@@ -77,7 +69,7 @@ export default function TodoListData() {
         onFilterChange={handleFilterChange}
         onClearCompleted={handleClearCompleted}
       />
-      {user?.role == 'ADMIN' && (
+      {user?.role === 'ADMIN' && (
         <UserManagement />
       )}
     </div>

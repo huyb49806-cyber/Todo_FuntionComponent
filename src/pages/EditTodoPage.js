@@ -2,7 +2,6 @@ import React, {useState,useEffect} from 'react';
 import {useSelector,useDispatch} from 'react-redux';
 import {useParams,useNavigate} from 'react-router-dom';
 import { saveEditing, cancelEditing, setEditingId } from '../redux/actions';
-import { selectEditingTodo } from '../redux/selectors';
 
 export default function EditTodoPage() {
   const {id} = useParams();
@@ -15,16 +14,16 @@ export default function EditTodoPage() {
     return () => dispatch(cancelEditing());
   }, [id, dispatch]);
 
-  const todo = useSelector(selectEditingTodo);
+  const todo = useSelector((state) => state.todos.items.find((item) => item.id === id));
   const [text,setText]=useState('');
 
   useEffect(() => {
-    setText(todo.text);
+    setText(todo?.text ?? '');
   }, [todo]);
 
   const handleSave=(e)=>{
     e.preventDefault();
-    if (text.trim()){
+    if (text.trim() && todo){
       dispatch(saveEditing(text.trim(),todo.id));
       navigate('/');
     }
